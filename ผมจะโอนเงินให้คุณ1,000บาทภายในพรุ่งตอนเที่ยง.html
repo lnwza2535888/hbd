@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HBDครับน้องปอ ิิ</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Itim&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --dark-olive: #434b3e;
+            --mustard-orange: #d48f22;
+            --cream-green: #ebedd8;
+            --bg-deep: #2a2f27;
+            --red-alert: #ff0000;
+            --font-main: 'Itim', cursive;
+        }
+
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: var(--font-main);
+            cursor: none; 
+        }
+
+        body {
+            width: 100%; height: 100vh;
+            background-color: var(--dark-olive);
+            background-image: 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)),
+                radial-gradient(circle, var(--dark-olive) 20%, var(--bg-deep) 100%);
+            background-size: 100% 4px, 3px 100%, cover;
+            overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            color: var(--cream-green);
+            perspective: 2000px;
+        }
+
+        @keyframes screenShake {
+            0% { transform: translate(2px, 2px) rotate(0deg); }
+            25% { transform: translate(-3px, -2px) rotate(1deg); }
+            50% { transform: translate(3px, 3px) rotate(-1deg); }
+            75% { transform: translate(-2px, 1px) rotate(0deg); }
+            100% { transform: translate(0, 0) rotate(0); }
+        }
+        .shaking-active { animation: screenShake 0.1s infinite; }
+
+        @keyframes blinkRed {
+            0% { opacity: 1; }
+            50% { opacity: 0.2; }
+            100% { opacity: 1; }
+        }
+
+        #customCursor {
+            width: 32px; height: 32px;
+            border: 2px solid var(--mustard-orange);
+            position: fixed; pointer-events: none; z-index: 9999;
+            transform: translate(-50%, -50%);
+            border-radius: 2px;
+        }
+        #customCursor::before { content: ""; width: 100%; height: 1px; background: var(--mustard-orange); position: absolute; top: 50%; }
+        #customCursor::after { content: ""; width: 1px; height: 100%; background: var(--mustard-orange); position: absolute; left: 50%; }
+
+        .btn-start, .btn-custom, #getMoneyBtn {
+            background: var(--mustard-orange); 
+            color: var(--bg-deep);
+            padding: 18px 40px; 
+            border: 3px solid var(--cream-green);
+            font-size: 1.6rem; 
+            font-weight: bold;
+            box-shadow: 6px 6px 0px var(--bg-deep);
+            z-index: 1000;
+            transition: all 0.2s ease;
+            cursor: none; 
+        }
+
+        .btn-start:hover, .btn-custom:hover, #getMoneyBtn:hover {
+            background: var(--cream-green) !important;
+            color: var(--mustard-orange) !important;
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px var(--bg-deep);
+        }
+
+        #countdownDisplay {
+            display: none; position: fixed; inset: 0;
+            z-index: 1500; font-size: 14rem; color: var(--mustard-orange);
+            align-items: center; justify-content: center;
+            text-shadow: 0 0 30px rgba(212, 143, 34, 0.5);
+        }
+
+        #giftSection { display: none; flex-direction: column; align-items: center; z-index: 500; }
+        
+        .gift-box { 
+            position: relative; width: 240px; height: 180px; 
+            transform-style: preserve-3d;
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+            cursor: none;
+        }
+        
+        .box-body { position: absolute; bottom: 0; width: 100%; height: 140px; background: #51594c; border: 3px solid var(--mustard-orange); z-index: 10; }
+        .box-lid { position: absolute; top: 15px; width: 260px; height: 45px; background: var(--bg-deep); border: 3px solid var(--mustard-orange); left: 50%; transform: translateX(-50%); z-index: 50; }
+        
+        .friend-img {
+            position: fixed; 
+            top: 45%; left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 280px; border: 8px solid var(--cream-green);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            opacity: 0; 
+            filter: blur(25px);
+            transition: opacity 0.6s, transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+            z-index: 2000; 
+            pointer-events: auto;
+        }
+
+        #boxHint {
+            position: fixed;
+            top: 75%; left: 50%;
+            transform: translate(-50%, 0);
+            color: var(--cream-green);
+            font-size: 1.8rem;
+            text-shadow: 2px 2px 0px #000;
+            transition: all 0.3s;
+            z-index: 2001;
+            white-space: nowrap;
+            opacity: 0;
+        }
+
+        .is-open .gift-box { opacity: 0; transform: scale(0.3); pointer-events: none; }
+        .is-open .friend-img { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        
+        .is-open #boxHint { 
+            color: var(--red-alert);
+            animation: blinkRed 0.6s infinite; 
+            transform: translate(-50%, 0) scale(1.1);
+        }
+
+        .friend-img.focus {
+            filter: blur(0) !important;
+            transition: filter 0.5s ease;
+        }
+
+        .popup {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            background: var(--bg-deep); padding: 35px; border: 4px solid var(--mustard-orange);
+            text-align: center; z-index: 3000; transition: 0.4s ease-out; width: 85%; max-width: 400px;
+        }
+        .popup.active { transform: translate(-50%, -50%) scale(1); }
+
+        #rainContainer { position: fixed; inset: 0; pointer-events: none; z-index: 1; display: none; }
+        .falling-item { position: absolute; top: -50px; animation: fall linear infinite; color: var(--mustard-orange); font-weight: bold; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+    </style>
+</head>
+<body id="mainBody">
+
+    <audio id="giftSound" preload="auto">
+    <!-- ลิงก์แบบดึงไฟล์ตรงจาก Google Drive -->
+    <source src="https://docs.google.com/uc?export=download&id=1r28vET02Pag6fEdMlg8xtB4wEmhYsQPC" type="audio/mpeg">
+</audio>
+
+    <div id="customCursor"></div>
+    <div id="rainContainer"></div>
+    <div id="countdownDisplay">3</div>
+
+    <section id="introSection">
+        <button class="btn-start" id="btnStart">คลิกแล้วจะได้เงิน1บาท</button>
+    </section>
+
+    <section id="giftSection">
+        <div id="giftContainer" style="position:relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+            <div class="gift-box" id="boxClick">
+                <div class="box-lid"></div>
+                <div class="box-body">
+                    <div style="position:absolute; left:50%; transform:translateX(-50%); width:40px; height:100%; background:var(--mustard-orange); opacity:0.8;"></div>
+                </div>
+            </div>
+            <img src="https://lh3.googleusercontent.com/d/1CsZWvT5bAIpd2OyTYOWa_CAjhYL2r5jG" class="friend-img" id="friendPic">
+            <h2 id="boxHint">จิ้มกล่องเพื่อรับของขวัญ</h2>
+        </div>
+    </section>
+
+    <div class="popup" id="popupMillion">
+        <h3 style="color:var(--mustard-orange);">ACCESS GRANTED</h3>
+        <p style="margin: 20px 0;">ยินดีด้วย! 🎉 คุณได้รับรูปวาดมูลค่า 1 ล้านบาท <br>สามารถชำระเงินผ่านช่องทางธรรมชาติ</p>
+        <button class="btn-custom" onclick="showMoneyBtn()">รับทราบรู้เฬื่อง</button>
+    </div>
+
+    <button id="getMoneyBtn" style="display:none; position:fixed; bottom:12%; left: 50%; transform: translateX(-50%); z-index:1500;" onclick="showFinalHBD()">กดปุ่มนี้แล้วคุณจะได้ตัง 20 บาท</button>
+
+    <div class="popup" id="popupHBD">
+        <h3 style="color:var(--mustard-orange);">MISSION COMPLETED</h3>
+        <p style="margin: 20px 0; line-height: 1.7;">
+            HBD นะน้องปอแก้ว ปอปิ คลื่น วาเรนจุบุๆ😘🎂<br><br>
+            มีความสุขมากๆนะ <br>
+            ขอให้ปีนี้เป็นปีที่ใจดีกับมึง <br>
+            เดี๋ยวถ้ามีโอกาสกูเองก็อยากพามึงไปเที่ยวออกไปแตะหญ้าด้วยกัน
+        </p>
+        <button class="btn-custom" onclick="location.reload()">RELOAD SYSTEM</button>
+    </div>
+
+    <script>
+        const cursor = document.getElementById('customCursor');
+        const friendPic = document.getElementById('friendPic');
+        const body = document.getElementById('mainBody');
+        const btnStart = document.getElementById('btnStart');
+        const giftSection = document.getElementById('giftSection');
+        const boxHint = document.getElementById('boxHint');
+        const giftSound = document.getElementById('giftSound');
+        let clickCount = 0;
+        let isFocused = false;
+
+        // บังคับให้โหลดเสียงเมื่อมีการคลิกครั้งแรก (สำคัญมาก)
+        function initAudio() {
+            giftSound.play().then(() => {
+                giftSound.pause();
+                giftSound.currentTime = 0;
+            }).catch(e => console.log("Init audio waiting for more interaction"));
+            document.removeEventListener('click', initAudio);
+        }
+        document.addEventListener('click', initAudio);
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+
+            if (isFocused) {
+                const xAxis = (window.innerWidth / 2 - e.clientX) / 15;
+                const yAxis = (window.innerHeight / 2 - e.clientY) / 15;
+                friendPic.style.transform = `translate(-50%, -50%) scale(1.1) rotateY(${-xAxis}deg) rotateX(${yAxis}deg)`;
+            }
+        });
+
+        const phrases = ["คลิกแล้วจะได้เงิน1บาท", "ล้อเล่น แต่กดอันนี้แล้วได้20", "กูล้อเล่นอีกรอบแต่ถ้าเป็นคนไทยจริงกดอีกรอบดูพี่"];
+
+        btnStart.addEventListener('click', () => {
+            giftSound.load(); 
+            clickCount++;
+            if (clickCount < 3) {
+                btnStart.innerText = phrases[clickCount];
+            } else {
+                btnStart.style.display = 'none';
+                runCountdown();
+            }
+        });
+
+        function runCountdown() {
+            const display = document.getElementById('countdownDisplay');
+            display.style.display = 'flex';
+            body.classList.add('shaking-active');
+            let time = 3;
+            const timer = setInterval(() => {
+                time--;
+                if (time > 0) display.innerText = time;
+                else {
+                    clearInterval(timer);
+                    display.style.display = 'none';
+                    body.classList.remove('shaking-active');
+                    showGift();
+                }
+            }, 1000);
+        }
+
+        function showGift() {
+            document.getElementById('introSection').style.display = 'none';
+            giftSection.style.display = 'flex';
+            setTimeout(() => { boxHint.style.opacity = "1"; }, 500);
+        }
+
+        document.getElementById('boxClick').addEventListener('click', function() {
+    giftSection.classList.add('is-open');
+    boxHint.innerText = "จิ้มรูปเพื่อยืนยันสิทธิ์ครับท่าน🙏";
+    
+    // รีเซ็ตเวลาและสั่งเล่นเพลงทันทีเมื่อกล่องเปิด
+    giftSound.currentTime = 0;
+    giftSound.play().catch(err => {
+        console.error("Browser บล็อกการเล่นเสียงอัตโนมัติ:", err);
+    });
+}, {once: true});
+
+        friendPic.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.add('focus');
+            boxHint.style.display = 'none';
+            isFocused = true;
+            setTimeout(() => { document.getElementById('popupMillion').classList.add('active'); }, 800);
+        });
+
+        function showMoneyBtn() {
+            document.getElementById('popupMillion').classList.remove('active');
+            document.getElementById('getMoneyBtn').style.display = 'block';
+        }
+
+        function showFinalHBD() {
+            document.getElementById('getMoneyBtn').style.display = 'none';
+            document.getElementById('rainContainer').style.display = 'block';
+            startRain();
+            setTimeout(() => { document.getElementById('popupHBD').classList.add('active'); }, 500);
+        }
+
+        function startRain() {
+            const items = ["HBD_POR", "20_BAHT", "HAPPY", "LUCKY"];
+            setInterval(() => {
+                const item = document.createElement('div');
+                item.className = 'falling-item';
+                item.innerText = items[Math.floor(Math.random() * items.length)];
+                item.style.left = Math.random() * 100 + "vw";
+                item.style.animationDuration = Math.random() * 2 + 3 + "s";
+                document.getElementById('rainContainer').appendChild(item);
+                setTimeout(() => item.remove(), 5000);
+            }, 400);
+        }
+    </script>
+</body>
+</html>
